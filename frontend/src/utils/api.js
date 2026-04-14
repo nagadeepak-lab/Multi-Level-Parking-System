@@ -35,8 +35,8 @@ api.interceptors.request.use(
  */
 
 // Vehicle Entry - INSERTION
-export const parkVehicle = (vehicleNumber, vehicleType) =>
-  api.post('/parking/entry', { vehicleNumber, vehicleType });
+export const parkVehicle = (vehicleNumber, vehicleType, preferredFloor, preferredSlot) =>
+  api.post('/parking/entry', { vehicleNumber, vehicleType, preferredFloor, preferredSlot });
 
 // Vehicle Exit - DELETION
 export const unparkVehicle = (vehicleNumber) =>

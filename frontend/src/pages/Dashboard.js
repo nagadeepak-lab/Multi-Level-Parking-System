@@ -133,6 +133,28 @@ const Dashboard = () => {
                   style={{ width: `${floor.stats.occupancyRate}%` }}
                 ></div>
               </div>
+
+              <div className="floor-vehicles">
+                <div className="floor-vehicles-header">
+                  <span>Vehicle History</span>
+                  <span>{floor.slots.filter((slot) => slot.status === 'occupied').length} parked</span>
+                </div>
+                {floor.slots.filter((slot) => slot.status === 'occupied').length === 0 ? (
+                  <p className="floor-vehicles-empty">No vehicles allocated on this floor.</p>
+                ) : (
+                  <div className="floor-vehicle-list">
+                    {floor.slots
+                      .filter((slot) => slot.status === 'occupied')
+                      .map((slot) => (
+                        <div key={slot.slotNo} className="floor-vehicle-row">
+                          <span className="vehicle-slot">Slot {slot.slotNo}</span>
+                          <span className="vehicle-number">{slot.vehicleNumber}</span>
+                          <span className="vehicle-entry">{slot.entryTime ? new Date(slot.entryTime).toLocaleTimeString() : '-'}</span>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>

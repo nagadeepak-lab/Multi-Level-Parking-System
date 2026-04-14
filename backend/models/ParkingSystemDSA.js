@@ -111,6 +111,10 @@ class ParkingFloor {
       occupancyRate: (occupied / this.slots.length) * 100
     };
   }
+
+  getSlot(slotNumber) {
+    return this.slots.find(slot => slot.slotNo === slotNumber);
+  }
 }
 
 class ParkingSystem {
@@ -144,7 +148,7 @@ class ParkingSystem {
    * Time Complexity: O(f * n) where f = floors, n = slots per floor
    * Space Complexity: O(1) additional space
    */
-  parkVehicle(vehicleNumber, vehicleType) {
+  parkVehicle(vehicleNumber, vehicleType, preferredFloor = null, preferredSlot = null) {
     // Input validation
     if (!vehicleNumber || !vehicleType) {
       return { success: false, message: "Invalid vehicle details" };
@@ -155,53 +159,87 @@ class ParkingSystem {
       return { success: false, message: "Vehicle already parked" };
     }
 
+    if (preferredFloor !== null) {
+      const floorIndex = preferredFloor - 1;
+      if (floorIndex < 0 || floorIndex >= this.floors.length) {
+        return { success: false, message: `Floor ${preferredFloor} does not exist` };
+      }
+
+      const floor = this.floors[floorIndex];
+
+      if (preferredSlot !== null) {
+        const slot = floor.getSlot(preferredSlot);
+        if (!slot) {
+          return { success: false, message: `Slot ${preferredSlot} not found on floor ${preferredFloor}` };
+        }
+        if (slot.vehicleType !== vehicleType) {
+          return { success: false, message: `Slot ${preferredSlot} on floor ${preferredFloor} is reserved for ${slot.vehicleType}` };
+        }
+        if (slot.status === "occupied") {
+          return { success: false, message: `Slot ${preferredSlot} on floor ${preferredFloor} is already occupied` };
+        }
+
+        return this.assignSlot(floor, slot, vehicleNumber, vehicleType);
+      }
+
+      const emptySlot = floor.findEmptySlot(vehicleType);
+      if (!emptySlot) {
+        return { success: false, message: `No available ${vehicleType} slots on floor ${preferredFloor}` };
+      }
+
+      return this.assignSlot(floor, emptySlot, vehicleNumber, vehicleType);
+    }
+
     // TRAVERSAL: Search through all floors
     for (let floor of this.floors) {
       const emptySlot = floor.findEmptySlot(vehicleType);
       
       if (emptySlot) {
-        // INSERTION: Mark slot as occupied
-        emptySlot.status = "occupied";
-        emptySlot.vehicleNumber = vehicleNumber;
-        emptySlot.entryTime = new Date();
-
-        // Update quick lookup
-        this.vehicleLocations[vehicleNumber] = {
-          floorNumber: floor.floorNumber,
-          slotNumber: emptySlot.slotNo,
-          vehicleType: vehicleType,
-          entryTime: emptySlot.entryTime
-        };
-
-        // Record in history
-        this.parkingHistory.push({
-          vehicleNumber,
-          vehicleType,
-          floorNumber: floor.floorNumber,
-          slotNumber: emptySlot.slotNo,
-          entryTime: emptySlot.entryTime,
-          exitTime: null,
-          duration: null,
-          fee: null
-        });
-
-        return {
-          success: true,
-          message: "Vehicle parked successfully",
-          data: {
-            vehicleNumber,
-            vehicleType,
-            floorNumber: floor.floorNumber,
-            slotNumber: emptySlot.slotNo,
-            entryTime: emptySlot.entryTime
-          }
-        };
+        return this.assignSlot(floor, emptySlot, vehicleNumber, vehicleType);
       }
     }
 
     return { 
       success: false, 
       message: `No available ${vehicleType} slots in parking system` 
+    };
+  }
+
+  assignSlot(floor, slot, vehicleNumber, vehicleType) {
+    slot.status = "occupied";
+    slot.vehicleNumber = vehicleNumber;
+    slot.entryTime = new Date();
+
+    // Update quick lookup
+    this.vehicleLocations[vehicleNumber] = {
+      floorNumber: floor.floorNumber,
+      slotNumber: slot.slotNo,
+      vehicleType: vehicleType,
+      entryTime: slot.entryTime
+    };
+
+    // Record in history
+    this.parkingHistory.push({
+      vehicleNumber,
+      vehicleType,
+      floorNumber: floor.floorNumber,
+      slotNumber: slot.slotNo,
+      entryTime: slot.entryTime,
+      exitTime: null,
+      duration: null,
+      fee: null
+    });
+
+    return {
+      success: true,
+      message: "Vehicle parked successfully",
+      data: {
+        vehicleNumber,
+        vehicleType,
+        floorNumber: floor.floorNumber,
+        slotNumber: slot.slotNo,
+        entryTime: slot.entryTime
+      }
     };
   }
 

@@ -46,6 +46,12 @@
   font-size: 0.95rem;
 }
 
+.hint-text {
+  font-size: 0.9rem;
+  color: var(--color-gray-500);
+  margin-top: 0.35rem;
+}
+
 .form-input,
 .form-select {
   padding: var(--spacing-md);
@@ -168,6 +174,99 @@
   margin: var(--spacing-lg) 0;
   padding-left: var(--spacing-xl);
   color: var(--color-gray-700);
+}
+
+.available-slots-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.floor-availability-card {
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  background: white;
+}
+
+.floor-availability-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.floor-availability-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.slot-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.slot-chip {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-full);
+  background: var(--color-gray-100);
+  color: var(--color-gray-800);
+  font-size: 0.875rem;
+}
+
+.slot-chip.bike {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--color-primary);
+}
+
+.slot-chip.car {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-blue-700);
+}
+
+.slot-chip.truck {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--color-yellow-700);
+}
+
+.slot-empty {
+  color: var(--color-gray-500);
+}
+
+.parked-summary-header {
+  margin-bottom: var(--spacing-md);
+  color: var(--color-gray-700);
+}
+
+.parked-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.parked-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  background: var(--color-gray-50);
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.parked-row span {
+  color: var(--color-gray-800);
+}
+
+.empty-message {
+  color: var(--color-gray-600);
+  margin: 0;
+}
+
+.no-data {
+  color: var(--color-gray-600);
+  margin: 0;
 }
 
 .info-section li {

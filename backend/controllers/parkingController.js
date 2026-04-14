@@ -22,7 +22,7 @@ const parkingSystem = new ParkingSystem(3, 10); // 3 floors, 10 slots per floor
  */
 export const parkVehicle = async (req, res) => {
   try {
-    const { vehicleNumber, vehicleType } = req.body;
+    const { vehicleNumber, vehicleType, preferredFloor, preferredSlot } = req.body;
 
     // Validate input
     if (!vehicleNumber || !vehicleType) {
@@ -40,7 +40,12 @@ export const parkVehicle = async (req, res) => {
     }
 
     // DSA INSERTION: Add vehicle to parking system
-    const result = parkingSystem.parkVehicle(vehicleNumber, vehicleType);
+    const result = parkingSystem.parkVehicle(
+      vehicleNumber,
+      vehicleType,
+      preferredFloor !== undefined ? Number(preferredFloor) : null,
+      preferredSlot !== undefined ? Number(preferredSlot) : null
+    );
 
     if (!result.success) {
       return res.status(400).json(result);
