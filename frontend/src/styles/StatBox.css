@@ -1,0 +1,73 @@
+/**
+ * StatBox.css
+ */
+
+.stat-box {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  border-left: 4px solid;
+  transition: all var(--transition-base);
+}
+
+.stat-box:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.stat-box-blue {
+  border-left-color: var(--color-primary);
+}
+
+.stat-box-green {
+  border-left-color: var(--color-success);
+}
+
+.stat-box-red {
+  border-left-color: var(--color-danger);
+}
+
+.stat-box-yellow {
+  border-left-color: var(--color-warning);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+  margin-top: var(--spacing-sm);
+}
+
+@media (max-width: 768px) {
+  .stat-box {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-md);
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+}

@@ -1,0 +1,202 @@
+/**
+ * ParkingHistory.css
+ */
+
+.parking-history {
+  padding: var(--spacing-xl);
+}
+
+.history-header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.history-header h1 {
+  font-size: 2.5rem;
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-md);
+}
+
+.history-header p {
+  font-size: 1.125rem;
+  color: var(--color-gray-600);
+}
+
+.filter-box {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.filter-input {
+  flex: 1;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.result-count {
+  font-weight: 600;
+  color: var(--color-gray-600);
+  white-space: nowrap;
+  background: var(--color-gray-100);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+}
+
+.error-message {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  padding: var(--spacing-lg);
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-lg);
+  color: var(--color-danger);
+}
+
+.no-records {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-gray-500);
+}
+
+.history-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-gray-200);
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.history-table thead {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.history-table th {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
+  border: none;
+}
+
+.history-table tbody tr {
+  border-bottom: 1px solid var(--color-gray-200);
+  transition: background-color var(--transition-base);
+}
+
+.history-table tbody tr:hover {
+  background-color: var(--color-gray-50);
+}
+
+.history-table tbody tr.active {
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+.history-table tbody tr.exited {
+  background-color: rgba(107, 114, 128, 0.05);
+}
+
+.history-table td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+}
+
+.vehicle-no {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.vehicle-type {
+  font-weight: 500;
+}
+
+.time {
+  font-size: 0.85rem;
+  color: var(--color-gray-600);
+  font-family: monospace;
+}
+
+.duration {
+  font-weight: 600;
+  color: var(--color-info);
+}
+
+.fee {
+  font-weight: 700;
+  color: var(--color-warning);
+}
+
+.stats-grid-simple {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.stat-title {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .parking-history {
+    padding: var(--spacing-lg);
+  }
+
+  .history-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .filter-box {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .filter-input,
+  .result-count {
+    width: 100%;
+  }
+
+  .history-table {
+    font-size: 0.8rem;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .stats-grid-simple {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
