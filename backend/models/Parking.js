@@ -21,6 +21,12 @@ const parkingSchema = new mongoose.Schema({
     required: true
   },
 
+  // Contact information
+  phoneNumber: {
+    type: String,
+    required: true
+  },
+
   // Parking location
   floorNumber: {
     type: Number,

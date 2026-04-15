@@ -6,22 +6,23 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { parkVehicle, getAvailableSlots, getParkedVehicles } from '../utils/api';
+import { parkVehicle, getAvailableSlots } from '../utils/api';
 import Card from '../components/Card';
 import '../styles/VehicleEntry.css';
 import { Check, AlertCircle } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 const VehicleEntry = () => {
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [vehicleType, setVehicleType] = useState('car');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedFloor, setSelectedFloor] = useState('');
   const [selectedSlot, setSelectedSlot] = useState('');
   const [availableFloors, setAvailableFloors] = useState([]);
-  const [parkedVehicles, setParkedVehicles] = useState([]);
-  const [parkedCount, setParkedCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [showPayment, setShowPayment] = useState(false);
 
   const fetchAvailableSlots = async () => {
     try {
@@ -34,21 +35,8 @@ const VehicleEntry = () => {
     }
   };
 
-  const fetchParkedVehicles = async () => {
-    try {
-      const response = await getParkedVehicles();
-      if (response.data.success) {
-        setParkedVehicles(response.data.data.vehicles);
-        setParkedCount(response.data.data.total);
-      }
-    } catch (err) {
-      console.error('Unable to load parked vehicles:', err);
-    }
-  };
-
   useEffect(() => {
     fetchAvailableSlots();
-    fetchParkedVehicles();
   }, []);
 
   useEffect(() => {
@@ -88,6 +76,11 @@ const VehicleEntry = () => {
       return;
     }
 
+    if (!phoneNumber.trim()) {
+      setError('Please enter a phone number');
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -95,6 +88,7 @@ const VehicleEntry = () => {
       const response = await parkVehicle(
         vehicleNumber.toUpperCase(),
         vehicleType,
+        phoneNumber,
         selectedFloor ? Number(selectedFloor) : null,
         selectedSlot ? Number(selectedSlot) : null
       );
@@ -103,10 +97,11 @@ const VehicleEntry = () => {
         setResult(response.data.data);
         setVehicleNumber('');
         setVehicleType('car');
+        setPhoneNumber('');
         setSelectedFloor('');
         setSelectedSlot('');
+        setShowPayment(true);
         await fetchAvailableSlots();
-        await fetchParkedVehicles();
       } else {
         setError(response.data.message);
       }
@@ -136,6 +131,19 @@ const VehicleEntry = () => {
                 value={vehicleNumber}
                 onChange={(e) => setVehicleNumber(e.target.value)}
                 placeholder="e.g., MH01AB1234"
+                disabled={loading}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="phoneNumber">Phone Number *</label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="e.g., +91 9876543210"
                 disabled={loading}
                 className="form-input"
               />
@@ -226,6 +234,11 @@ const VehicleEntry = () => {
               </div>
 
               <div className="result-item">
+                <span className="label">Phone Number:</span>
+                <span className="value">{result.phoneNumber}</span>
+              </div>
+
+              <div className="result-item">
                 <span className="label">Vehicle Type:</span>
                 <span className="value">
                   {result.vehicleType === 'bike' && '🏍️'}
@@ -258,28 +271,51 @@ const VehicleEntry = () => {
           </Card>
         )}
 
-        {/* Currently Allotted Vehicles */}
-        <Card title="🚗 Currently Allotted Vehicles" icon="📋">
-          <div className="parked-summary-header">
-            <p>
-              <strong>{parkedCount}</strong> vehicles are currently allotted in the parking system.
-            </p>
-            <p>Select any vehicle to view floor and slot details while entering a new vehicle.</p>
-          </div>
-          {parkedVehicles.length > 0 ? (
-            <div className="parked-list">
-              {parkedVehicles.map((vehicle) => (
-                <div key={vehicle.vehicleNumber} className="parked-row">
-                  <span>{vehicle.vehicleNumber}</span>
-                  <span>{vehicle.vehicleType.toUpperCase()}</span>
-                  <span>Floor {vehicle.floorNumber} · Slot {vehicle.slotNumber}</span>
+        {/* Payment Section */}
+        {showPayment && result && (
+          <Card title="💳 Payment" icon="💰">
+            <div className="payment-section">
+              <div className="payment-info">
+                <h3>Parking Fee Payment</h3>
+                <div className="payment-details">
+                  <div className="payment-item">
+                    <span className="label">Vehicle:</span>
+                    <span className="value">{result.vehicleNumber}</span>
+                  </div>
+                  <div className="payment-item">
+                    <span className="label">Amount:</span>
+                    <span className="value amount">₹50.00</span>
+                  </div>
+                  <div className="payment-item">
+                    <span className="label">Valid Until:</span>
+                    <span className="value">24 hours from entry</span>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              <div className="qr-section">
+                <h4>Scan QR Code to Pay</h4>
+                <div className="qr-container">
+                  <QRCodeCanvas
+                    value={`upi://pay?pa=merchant@upi&pn=ParkingSystem&am=50.00&cu=INR&tn=ParkingFee_${result.vehicleNumber}`}
+                    size={200}
+                    level="H"
+                    includeMargin={true}
+                  />
+                </div>
+                <p className="qr-instruction">
+                  Use any UPI app (Google Pay, PhonePe, Paytm, etc.) to scan and pay
+                </p>
+                <button
+                  className="payment-done-btn"
+                  onClick={() => setShowPayment(false)}
+                >
+                  ✓ Payment Completed
+                </button>
+              </div>
             </div>
-          ) : (
-            <p className="empty-message">No vehicles are currently allocated.</p>
-          )}
-        </Card>
+          </Card>
+        )}
 
         {/* Error Alert */}
         {error && (

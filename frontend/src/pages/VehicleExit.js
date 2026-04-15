@@ -10,6 +10,7 @@ import { getParkedVehicles, unparkVehicle } from '../utils/api';
 import Card from '../components/Card';
 import '../styles/VehicleExit.css';
 import { AlertCircle, Clock, DollarSign } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 const VehicleExit = () => {
   const [vehicleNumber, setVehicleNumber] = useState('');
@@ -17,6 +18,7 @@ const VehicleExit = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [showPayment, setShowPayment] = useState(false);
   const [parkedVehicles, setParkedVehicles] = useState([]);
   const [parkedCount, setParkedCount] = useState(0);
 
@@ -55,6 +57,7 @@ const VehicleExit = () => {
       if (response.data.success) {
         setResult(response.data.data);
         setVehicleNumber('');
+        setShowPayment(true);
         fetchParkedVehicles();
       } else {
         setError(response.data.message);
@@ -65,6 +68,9 @@ const VehicleExit = () => {
       setLoading(false);
     }
   };
+
+  const parsedParkingFee = result ? Number(String(result.parkingFee).replace(/[^0-9.]/g, '')) : 0;
+  const formattedParkingFee = !Number.isNaN(parsedParkingFee) ? `₹${parsedParkingFee.toFixed(2)}` : result?.parkingFee;
 
   return (
     <div className="vehicle-exit">
@@ -177,12 +183,58 @@ const VehicleExit = () => {
                   <DollarSign size={16} />
                   Parking Fee:
                 </span>
-                <span className="value fee">{result.parkingFee}</span>
+                <span className="value fee">{formattedParkingFee}</span>
               </div>
 
               <div className="info-message success">
                 <AlertCircle size={20} />
                 <span>Vehicle successfully removed using DSA deletion algorithm</span>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {showPayment && result && (
+          <Card title="💳 Payment" icon="💰">
+            <div className="payment-section">
+              <div className="payment-info">
+                <h3>Complete Payment</h3>
+                <div className="payment-details">
+                  <div className="payment-item">
+                    <span className="label">Vehicle</span>
+                    <span className="value">{result.vehicleNumber}</span>
+                  </div>
+                  <div className="payment-item">
+                    <span className="label">Amount</span>
+                    <span className="value amount">{formattedParkingFee}</span>
+                  </div>
+                  <div className="payment-item">
+                    <span className="label">Payment Type</span>
+                    <span className="value">UPI / QR Scan</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="qr-section">
+                <h4>Scan to Pay</h4>
+                <div className="qr-container">
+                  <QRCodeCanvas
+                    value={`upi://pay?pa=merchant@upi&pn=ParkingSystem&am=${parsedParkingFee.toFixed(2)}&cu=INR&tn=ParkingFee_${result.vehicleNumber}`}
+                    size={200}
+                    level="H"
+                    includeMargin={true}
+                  />
+                </div>
+                <p className="qr-instruction">
+                  Scan this QR code with any UPI app to complete payment.
+                </p>
+                <button
+                  className="payment-done-btn"
+                  type="button"
+                  onClick={() => setShowPayment(false)}
+                >
+                  ✓ Payment Completed
+                </button>
               </div>
             </div>
           </Card>

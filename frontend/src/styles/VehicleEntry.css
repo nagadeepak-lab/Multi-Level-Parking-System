@@ -300,3 +300,108 @@
     padding-left: var(--spacing-lg);
   }
 }
+
+/* Payment Section Styles */
+.payment-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+.payment-info h3 {
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--color-gray-900);
+  font-size: 1.25rem;
+}
+
+.payment-details {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.payment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.payment-item:last-child {
+  border-bottom: none;
+}
+
+.payment-item .label {
+  font-weight: 600;
+  color: var(--color-gray-700);
+}
+
+.payment-item .value {
+  color: var(--color-gray-900);
+}
+
+.payment-item .value.amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-success);
+}
+
+.qr-section {
+  text-align: center;
+  padding: var(--spacing-lg);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary-light), white);
+}
+
+.qr-section h4 {
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--color-gray-900);
+  font-size: 1.1rem;
+}
+
+.qr-container {
+  display: inline-block;
+  padding: var(--spacing-md);
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: var(--spacing-lg);
+}
+
+.qr-instruction {
+  font-size: 0.9rem;
+  color: var(--color-gray-600);
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.4;
+}
+
+.payment-done-btn {
+  background: var(--color-success);
+  color: white;
+  border: none;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.payment-done-btn:hover {
+  background: var(--color-success-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .payment-section {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .qr-section {
+    padding: var(--spacing-md);
+  }
+}

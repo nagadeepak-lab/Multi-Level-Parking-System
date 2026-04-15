@@ -22,13 +22,13 @@ const parkingSystem = new ParkingSystem(3, 10); // 3 floors, 10 slots per floor
  */
 export const parkVehicle = async (req, res) => {
   try {
-    const { vehicleNumber, vehicleType, preferredFloor, preferredSlot } = req.body;
+    const { vehicleNumber, vehicleType, phoneNumber, preferredFloor, preferredSlot } = req.body;
 
     // Validate input
-    if (!vehicleNumber || !vehicleType) {
+    if (!vehicleNumber || !vehicleType || !phoneNumber) {
       return res.status(400).json({
         success: false,
-        message: 'Vehicle number and type are required'
+        message: 'Vehicle number, type, and phone number are required'
       });
     }
 
@@ -56,6 +56,7 @@ export const parkVehicle = async (req, res) => {
       await Parking.create({
         vehicleNumber,
         vehicleType,
+        phoneNumber,
         floorNumber: result.data.floorNumber,
         slotNumber: result.data.slotNumber,
         entryTime: result.data.entryTime,
@@ -69,7 +70,10 @@ export const parkVehicle = async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Vehicle parked successfully',
-      data: result.data
+      data: {
+        ...result.data,
+        phoneNumber
+      }
     });
 
   } catch (error) {
@@ -112,7 +116,7 @@ export const unparkVehicle = async (req, res) => {
           parkingDuration: Math.round(
             (result.data.exitTime - result.data.entryTime) / (1000 * 60)
           ),
-          parkingFee: result.data.parkingFee.replace('₹', '')
+          parkingFee: parseFloat(result.data.parkingFee.replace('₹', ''))
         }
       );
     } catch (dbError) {
@@ -122,7 +126,10 @@ export const unparkVehicle = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Vehicle removed successfully',
-      data: result.data
+      data: {
+        ...result.data,
+        parkingFee: parseFloat(result.data.parkingFee.replace('₹', ''))
+      }
     });
 
   } catch (error) {
