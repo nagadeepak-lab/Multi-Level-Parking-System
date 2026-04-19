@@ -10,19 +10,18 @@ import { parkVehicle, getAvailableSlots } from '../utils/api';
 import Card from '../components/Card';
 import '../styles/VehicleEntry.css';
 import { Check, AlertCircle } from 'lucide-react';
-import { QRCodeCanvas } from 'qrcode.react';
 
 const VehicleEntry = () => {
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [vehicleType, setVehicleType] = useState('car');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [name, setName] = useState('');
   const [selectedFloor, setSelectedFloor] = useState('');
   const [selectedSlot, setSelectedSlot] = useState('');
   const [availableFloors, setAvailableFloors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [showPayment, setShowPayment] = useState(false);
 
   const fetchAvailableSlots = async () => {
     try {
@@ -89,6 +88,7 @@ const VehicleEntry = () => {
         vehicleNumber.toUpperCase(),
         vehicleType,
         phoneNumber,
+        name.trim() ? name.trim() : null,
         selectedFloor ? Number(selectedFloor) : null,
         selectedSlot ? Number(selectedSlot) : null
       );
@@ -98,9 +98,9 @@ const VehicleEntry = () => {
         setVehicleNumber('');
         setVehicleType('car');
         setPhoneNumber('');
+        setName('');
         setSelectedFloor('');
         setSelectedSlot('');
-        setShowPayment(true);
         await fetchAvailableSlots();
       } else {
         setError(response.data.message);
@@ -143,7 +143,20 @@ const VehicleEntry = () => {
                 id="phoneNumber"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="e.g., +91 9876543210"
+                placeholder="+91"
+                disabled={loading}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="name">Name</label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder=""
                 disabled={loading}
                 className="form-input"
               />
@@ -237,7 +250,12 @@ const VehicleEntry = () => {
                 <span className="label">Phone Number:</span>
                 <span className="value">{result.phoneNumber}</span>
               </div>
-
+              {result.name && (
+                <div className="result-item">
+                  <span className="label">Name:</span>
+                  <span className="value">{result.name}</span>
+                </div>
+              )}
               <div className="result-item">
                 <span className="label">Vehicle Type:</span>
                 <span className="value">
@@ -266,52 +284,6 @@ const VehicleEntry = () => {
               <div className="info-message">
                 <Check size={20} />
                 <span>Slot successfully assigned using DSA insertion algorithm</span>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Payment Section */}
-        {showPayment && result && (
-          <Card title="💳 Payment" icon="💰">
-            <div className="payment-section">
-              <div className="payment-info">
-                <h3>Parking Fee Payment</h3>
-                <div className="payment-details">
-                  <div className="payment-item">
-                    <span className="label">Vehicle:</span>
-                    <span className="value">{result.vehicleNumber}</span>
-                  </div>
-                  <div className="payment-item">
-                    <span className="label">Amount:</span>
-                    <span className="value amount">₹50.00</span>
-                  </div>
-                  <div className="payment-item">
-                    <span className="label">Valid Until:</span>
-                    <span className="value">24 hours from entry</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="qr-section">
-                <h4>Scan QR Code to Pay</h4>
-                <div className="qr-container">
-                  <QRCodeCanvas
-                    value={`upi://pay?pa=merchant@upi&pn=ParkingSystem&am=50.00&cu=INR&tn=ParkingFee_${result.vehicleNumber}`}
-                    size={200}
-                    level="H"
-                    includeMargin={true}
-                  />
-                </div>
-                <p className="qr-instruction">
-                  Use any UPI app (Google Pay, PhonePe, Paytm, etc.) to scan and pay
-                </p>
-                <button
-                  className="payment-done-btn"
-                  onClick={() => setShowPayment(false)}
-                >
-                  ✓ Payment Completed
-                </button>
               </div>
             </div>
           </Card>

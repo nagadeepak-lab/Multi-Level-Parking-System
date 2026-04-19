@@ -6,19 +6,19 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getParkedVehicles, unparkVehicle } from '../utils/api';
 import Card from '../components/Card';
 import '../styles/VehicleExit.css';
 import { AlertCircle, Clock, DollarSign } from 'lucide-react';
-import { QRCodeCanvas } from 'qrcode.react';
 
 const VehicleExit = () => {
+  const navigate = useNavigate();
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [showPayment, setShowPayment] = useState(false);
   const [parkedVehicles, setParkedVehicles] = useState([]);
   const [parkedCount, setParkedCount] = useState(0);
 
@@ -57,8 +57,9 @@ const VehicleExit = () => {
       if (response.data.success) {
         setResult(response.data.data);
         setVehicleNumber('');
-        setShowPayment(true);
         fetchParkedVehicles();
+        // Navigate to payment page with exit data
+        navigate('/payment', { state: { exitData: response.data.data } });
       } else {
         setError(response.data.message);
       }
@@ -103,6 +104,7 @@ const VehicleExit = () => {
                     }}
                   >
                     <span>{vehicle.vehicleNumber}</span>
+                    {vehicle.name && <span>{vehicle.name}</span>}
                     <span>{vehicle.vehicleType.toUpperCase()}</span>
                     <span>Floor {vehicle.floorNumber} · Slot {vehicle.slotNumber}</span>
                   </div>
@@ -194,52 +196,6 @@ const VehicleExit = () => {
           </Card>
         )}
 
-        {showPayment && result && (
-          <Card title="💳 Payment" icon="💰">
-            <div className="payment-section">
-              <div className="payment-info">
-                <h3>Complete Payment</h3>
-                <div className="payment-details">
-                  <div className="payment-item">
-                    <span className="label">Vehicle</span>
-                    <span className="value">{result.vehicleNumber}</span>
-                  </div>
-                  <div className="payment-item">
-                    <span className="label">Amount</span>
-                    <span className="value amount">{formattedParkingFee}</span>
-                  </div>
-                  <div className="payment-item">
-                    <span className="label">Payment Type</span>
-                    <span className="value">UPI / QR Scan</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="qr-section">
-                <h4>Scan to Pay</h4>
-                <div className="qr-container">
-                  <QRCodeCanvas
-                    value={`upi://pay?pa=merchant@upi&pn=ParkingSystem&am=${parsedParkingFee.toFixed(2)}&cu=INR&tn=ParkingFee_${result.vehicleNumber}`}
-                    size={200}
-                    level="H"
-                    includeMargin={true}
-                  />
-                </div>
-                <p className="qr-instruction">
-                  Scan this QR code with any UPI app to complete payment.
-                </p>
-                <button
-                  className="payment-done-btn"
-                  type="button"
-                  onClick={() => setShowPayment(false)}
-                >
-                  ✓ Payment Completed
-                </button>
-              </div>
-            </div>
-          </Card>
-        )}
-
         {/* Error Alert */}
         {error && (
           <Card title="⚠️ Error" icon="❌">
@@ -270,15 +226,15 @@ const VehicleExit = () => {
           <div className="pricing-table">
             <div className="pricing-row">
               <span>🏍️ Bike</span>
-              <span>₹5/hour</span>
+              <span>₹100/hour</span>
             </div>
             <div className="pricing-row">
               <span>🚗 Car</span>
-              <span>₹10/hour</span>
+              <span>₹150/hour</span>
             </div>
             <div className="pricing-row">
               <span>🚚 Truck</span>
-              <span>₹20/hour</span>
+              <span>₹200/hour</span>
             </div>
           </div>
         </div>

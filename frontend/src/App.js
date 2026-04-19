@@ -11,6 +11,7 @@ import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import VehicleEntry from './pages/VehicleEntry';
 import VehicleExit from './pages/VehicleExit';
+import Payment from './pages/Payment';
 import SearchVehicle from './pages/SearchVehicle';
 import FloorsVisualization from './pages/FloorsVisualization';
 import ParkingHistory from './pages/ParkingHistory';
@@ -45,6 +46,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/entry" element={<VehicleEntry />} />
             <Route path="/exit" element={<VehicleExit />} />
+            <Route path="/payment" element={<Payment />} />
             <Route path="/search" element={<SearchVehicle />} />
             <Route path="/floors" element={<FloorsVisualization />} />
             <Route path="/history" element={<ParkingHistory />} />
