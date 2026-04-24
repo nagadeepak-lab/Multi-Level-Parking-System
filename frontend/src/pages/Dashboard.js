@@ -1,8 +1,8 @@
 /**
  * Dashboard.js
- * 
- * Main Dashboard Page
- * Displays parking system statistics and overview
+ *
+ * City Parking Finder Dashboard
+ * Floor occupancy and parking history overview
  */
 
 import React, { useState, useEffect } from 'react';
@@ -11,7 +11,7 @@ import Card from '../components/Card';
 import StatBox from '../components/StatBox';
 import LoadingSpinner from '../components/LoadingSpinner';
 import '../styles/Dashboard.css';
-import { TrendingUp, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -42,7 +42,6 @@ const Dashboard = () => {
       }
     };
 
-    // Fetch data immediately and then every 5 seconds
     fetchData();
     const interval = setInterval(fetchData, 5000);
 
@@ -65,8 +64,8 @@ const Dashboard = () => {
     <div className="dashboard">
       {/* Header */}
       <div className="dashboard-header">
-        <h1>🅿️ Parking System Dashboard</h1>
-        <p>Real-time parking management and monitoring</p>
+        <h1>🚗 Parking Dashboard</h1>
+        <p>Monitor floor occupancy and current parking status</p>
       </div>
 
       {/* Statistics Grid */}
@@ -99,104 +98,98 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Floors Overview */}
-      <Card title="📍 Floors Overview" icon="🏢">
-        <div className="floors-overview">
-          {floors.map((floor) => (
-            <div key={floor.floorNumber} className="floor-card">
+      {/* Floor Overview */}
+      <div className="floors-overview">
+        {floors.map((floor) => {
+          const occupiedSlots = floor.slots.filter((slot) => slot.status === 'occupied');
+
+          return (
+            <Card
+              key={floor.floorNumber}
+              title={`Floor ${floor.floorNumber}`}
+              icon="🏢"
+              className="floor-card"
+            >
               <div className="floor-header">
                 <h3>Floor {floor.floorNumber}</h3>
                 <span className="occupancy-badge">
-                  {Math.round(floor.stats.occupancyRate)}%
+                  {Math.round(floor.stats.occupancyRate)}% occupied
                 </span>
               </div>
 
               <div className="floor-stats">
                 <div className="stat">
-                  <span className="label">Total:</span>
+                  <span className="label">Total</span>
                   <span className="value">{floor.stats.totalSlots}</span>
                 </div>
                 <div className="stat">
-                  <span className="label">Occupied:</span>
+                  <span className="label">Occupied</span>
                   <span className="value occupied">{floor.stats.occupiedSlots}</span>
                 </div>
                 <div className="stat">
-                  <span className="label">Available:</span>
+                  <span className="label">Available</span>
                   <span className="value available">{floor.stats.emptySlots}</span>
                 </div>
               </div>
 
-              {/* Progress Bar */}
               <div className="progress-bar">
                 <div
                   className="progress-fill"
-                  style={{ width: `${floor.stats.occupancyRate}%` }}
-                ></div>
+                  style={{ width: `${Math.round(floor.stats.occupancyRate)}%` }}
+                />
               </div>
 
               <div className="floor-vehicles">
                 <div className="floor-vehicles-header">
-                  <span>Vehicle History</span>
-                  <span>{floor.slots.filter((slot) => slot.status === 'occupied').length} parked</span>
+                  <span>Active vehicles</span>
+                  <span>{occupiedSlots.length} occupied</span>
                 </div>
-                {floor.slots.filter((slot) => slot.status === 'occupied').length === 0 ? (
-                  <p className="floor-vehicles-empty">No vehicles allocated on this floor.</p>
+                {occupiedSlots.length === 0 ? (
+                  <p className="floor-vehicles-empty">No active vehicles on this floor.</p>
                 ) : (
                   <div className="floor-vehicle-list">
-                    {floor.slots
-                      .filter((slot) => slot.status === 'occupied')
-                      .map((slot) => (
-                        <div key={slot.slotNo} className="floor-vehicle-row">
-                          <span className="vehicle-slot">Slot {slot.slotNo}</span>
-                          <span className="vehicle-number">{slot.vehicleNumber}</span>
-                          <span className="vehicle-entry">{slot.entryTime ? new Date(slot.entryTime).toLocaleTimeString() : '-'}</span>
-                        </div>
-                      ))}
+                    {occupiedSlots.map((slot) => (
+                      <div key={`${floor.floorNumber}-${slot.slotNo}`} className="floor-vehicle-row">
+                        <span className="vehicle-slot">#{slot.slotNo}</span>
+                        <span className="vehicle-number">{slot.vehicleNumber}</span>
+                        <span className="vehicle-entry">
+                          {slot.vehicleType} • {slot.entryTime ? new Date(slot.entryTime).toLocaleTimeString() : '-'}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+            </Card>
+          );
+        })}
+      </div>
 
       {/* DSA Concepts Info */}
-      <Card title="🧠 DSA Concepts Demonstrated" icon="💡">
+      <Card title="🧠 System Architecture" icon="💡">
         <div className="dsa-info">
           <div className="dsa-item">
-            <span className="dsa-label">Arrays:</span>
+            <span className="dsa-label">Floor Traversal</span>
             <span className="dsa-desc">
-              Each floor uses an array to store parking slots
+              The dashboard displays all floors using traversal of the parking system structure.
             </span>
           </div>
           <div className="dsa-item">
-            <span className="dsa-label">Tree Structure:</span>
+            <span className="dsa-label">History Recording</span>
             <span className="dsa-desc">
-              Multiple floors form a hierarchical tree structure
+              Recent parking actions are shown as registered history records for auditing.
             </span>
           </div>
           <div className="dsa-item">
-            <span className="dsa-label">Insertion:</span>
+            <span className="dsa-label">Occupancy Metrics</span>
             <span className="dsa-desc">
-              Adding vehicles to available slots
+              Real-time slot occupancy is derived from the current floor state.
             </span>
           </div>
           <div className="dsa-item">
-            <span className="dsa-label">Deletion:</span>
+            <span className="dsa-label">Quick Lookup</span>
             <span className="dsa-desc">
-              Removing vehicles and freeing slots
-            </span>
-          </div>
-          <div className="dsa-item">
-            <span className="dsa-label">Searching:</span>
-            <span className="dsa-desc">
-              Finding vehicles using hash maps (O(1) complexity)
-            </span>
-          </div>
-          <div className="dsa-item">
-            <span className="dsa-label">Traversal:</span>
-            <span className="dsa-desc">
-              In-order traversal of floors and slots
+              Vehicle locations and parking history use efficient lookup and traversal logic.
             </span>
           </div>
         </div>

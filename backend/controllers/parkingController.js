@@ -22,7 +22,7 @@ const parkingSystem = new ParkingSystem(3, 10); // 3 floors, 10 slots per floor
  */
 export const parkVehicle = async (req, res) => {
   try {
-    const { vehicleNumber, vehicleType, phoneNumber, preferredFloor, preferredSlot } = req.body;
+    const { vehicleNumber, vehicleType, phoneNumber, name, preferredFloor, preferredSlot } = req.body;
 
     // Validate input
     if (!vehicleNumber || !vehicleType || !phoneNumber) {
@@ -43,8 +43,9 @@ export const parkVehicle = async (req, res) => {
     const result = parkingSystem.parkVehicle(
       vehicleNumber,
       vehicleType,
-      preferredFloor !== undefined ? Number(preferredFloor) : null,
-      preferredSlot !== undefined ? Number(preferredSlot) : null
+      name || null,
+      preferredFloor !== undefined && preferredFloor !== null ? Number(preferredFloor) : null,
+      preferredSlot !== undefined && preferredSlot !== null ? Number(preferredSlot) : null
     );
 
     if (!result.success) {
@@ -57,6 +58,7 @@ export const parkVehicle = async (req, res) => {
         vehicleNumber,
         vehicleType,
         phoneNumber,
+        name,
         floorNumber: result.data.floorNumber,
         slotNumber: result.data.slotNumber,
         entryTime: result.data.entryTime,
@@ -72,7 +74,8 @@ export const parkVehicle = async (req, res) => {
       message: 'Vehicle parked successfully',
       data: {
         ...result.data,
-        phoneNumber
+        phoneNumber,
+        name
       }
     });
 
@@ -262,6 +265,7 @@ export const getParkedVehicles = async (req, res) => {
     const parkedVehicles = Object.entries(parkingSystem.vehicleLocations).map(
       ([vehicleNumber, location]) => ({
         vehicleNumber,
+        name: location.name || '',
         vehicleType: location.vehicleType,
         floorNumber: location.floorNumber,
         slotNumber: location.slotNumber,
@@ -393,5 +397,30 @@ export const getDBParkingHistory = async (req, res) => {
       message: 'Error fetching database history',
       error: error.message
     });
+  }
+};
+
+export const hydrateParkingSystemFromDB = async () => {
+  try {
+    const parkedVehicles = await Parking.find({ status: 'parked' });
+
+    for (const record of parkedVehicles) {
+      const restoreResult = parkingSystem.restoreParkedVehicle(
+        record.vehicleNumber,
+        record.vehicleType,
+        record.name || '',
+        record.floorNumber,
+        record.slotNumber,
+        record.entryTime
+      );
+
+      if (!restoreResult.success) {
+        console.warn('Failed to restore parked vehicle:', record.vehicleNumber, restoreResult.message);
+      }
+    }
+
+    console.log(`✅ Restored ${parkedVehicles.length} parked vehicles from the database`);
+  } catch (error) {
+    console.error('Error hydrating parking system from DB:', error.message);
   }
 };

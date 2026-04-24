@@ -13,12 +13,11 @@ import { Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState(getUser());
+  const user = getUser();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    setUser(null);
     navigate('/');
   };
 
@@ -58,11 +57,6 @@ const Navbar = () => {
           <li>
             <Link to="/exit" onClick={() => setIsMobileMenuOpen(false)}>
               Vehicle Exit
-            </Link>
-          </li>
-          <li>
-            <Link to="/search" onClick={() => setIsMobileMenuOpen(false)}>
-              Search
             </Link>
           </li>
           <li>

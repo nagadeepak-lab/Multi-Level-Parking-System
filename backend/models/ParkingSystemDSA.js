@@ -148,7 +148,7 @@ class ParkingSystem {
    * Time Complexity: O(f * n) where f = floors, n = slots per floor
    * Space Complexity: O(1) additional space
    */
-  parkVehicle(vehicleNumber, vehicleType, preferredFloor = null, preferredSlot = null) {
+  parkVehicle(vehicleNumber, vehicleType, name = '', preferredFloor = null, preferredSlot = null) {
     // Input validation
     if (!vehicleNumber || !vehicleType) {
       return { success: false, message: "Invalid vehicle details" };
@@ -179,7 +179,7 @@ class ParkingSystem {
           return { success: false, message: `Slot ${preferredSlot} on floor ${preferredFloor} is already occupied` };
         }
 
-        return this.assignSlot(floor, slot, vehicleNumber, vehicleType);
+        return this.assignSlot(floor, slot, vehicleNumber, vehicleType, name);
       }
 
       const emptySlot = floor.findEmptySlot(vehicleType);
@@ -187,7 +187,7 @@ class ParkingSystem {
         return { success: false, message: `No available ${vehicleType} slots on floor ${preferredFloor}` };
       }
 
-      return this.assignSlot(floor, emptySlot, vehicleNumber, vehicleType);
+      return this.assignSlot(floor, emptySlot, vehicleNumber, vehicleType, name);
     }
 
     // TRAVERSAL: Search through all floors
@@ -195,7 +195,7 @@ class ParkingSystem {
       const emptySlot = floor.findEmptySlot(vehicleType);
       
       if (emptySlot) {
-        return this.assignSlot(floor, emptySlot, vehicleNumber, vehicleType);
+        return this.assignSlot(floor, emptySlot, vehicleNumber, vehicleType, name);
       }
     }
 
@@ -205,7 +205,7 @@ class ParkingSystem {
     };
   }
 
-  assignSlot(floor, slot, vehicleNumber, vehicleType) {
+  assignSlot(floor, slot, vehicleNumber, vehicleType, name) {
     slot.status = "occupied";
     slot.vehicleNumber = vehicleNumber;
     slot.entryTime = new Date();
@@ -215,6 +215,7 @@ class ParkingSystem {
       floorNumber: floor.floorNumber,
       slotNumber: slot.slotNo,
       vehicleType: vehicleType,
+      name,
       entryTime: slot.entryTime
     };
 
@@ -222,6 +223,7 @@ class ParkingSystem {
     this.parkingHistory.push({
       vehicleNumber,
       vehicleType,
+      name,
       floorNumber: floor.floorNumber,
       slotNumber: slot.slotNo,
       entryTime: slot.entryTime,
@@ -235,12 +237,57 @@ class ParkingSystem {
       message: "Vehicle parked successfully",
       data: {
         vehicleNumber,
+        name,
         vehicleType,
         floorNumber: floor.floorNumber,
         slotNumber: slot.slotNo,
         entryTime: slot.entryTime
       }
     };
+  }
+
+  restoreParkedVehicle(vehicleNumber, vehicleType, name = '', floorNumber, slotNumber, entryTime) {
+    const floorIndex = floorNumber - 1;
+    const floor = this.floors[floorIndex];
+
+    if (!floor) {
+      return { success: false, message: `Floor ${floorNumber} does not exist` };
+    }
+
+    const slot = floor.getSlot(slotNumber);
+    if (!slot) {
+      return { success: false, message: `Slot ${slotNumber} not found on floor ${floorNumber}` };
+    }
+
+    if (slot.status === "occupied") {
+      return { success: false, message: `Slot ${slotNumber} on floor ${floorNumber} is already occupied` };
+    }
+
+    slot.status = "occupied";
+    slot.vehicleNumber = vehicleNumber;
+    slot.entryTime = new Date(entryTime);
+
+    this.vehicleLocations[vehicleNumber] = {
+      floorNumber,
+      slotNumber,
+      vehicleType,
+      name,
+      entryTime: slot.entryTime
+    };
+
+    this.parkingHistory.push({
+      vehicleNumber,
+      vehicleType,
+      name,
+      floorNumber,
+      slotNumber,
+      entryTime: slot.entryTime,
+      exitTime: null,
+      duration: null,
+      fee: null
+    });
+
+    return { success: true };
   }
 
   /**
@@ -271,11 +318,11 @@ class ParkingSystem {
     const exitTime = new Date();
     const duration = (exitTime - location.entryTime) / (1000 * 60); // minutes
 
-    // Calculate parking fee (assuming ₹10 per hour for cars, ₹5 for bikes, ₹20 for trucks)
+    // Calculate parking fee (assuming ₹100 per hour for bikes, ₹150 for cars, ₹200 for trucks)
     const ratesPerHour = {
-      bike: 5,
-      car: 10,
-      truck: 20
+      bike: 100,
+      car: 150,
+      truck: 200
     };
     const fee = Math.ceil((duration / 60) * ratesPerHour[location.vehicleType]);
 

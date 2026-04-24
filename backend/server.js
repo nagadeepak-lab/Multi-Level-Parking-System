@@ -12,6 +12,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import parkingRoutes from './routes/parkingRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import { hydrateParkingSystemFromDB } from './controllers/parkingController.js';
 
 // Load environment variables
 dotenv.config();
@@ -23,9 +24,14 @@ const PORT = process.env.PORT || 5000;
  * MIDDLEWARE
  */
 
-// CORS - Allow cross-origin requests from React frontend
+// CORS - Allow cross-origin requests from local development frontend
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', '*'],
+  origin: (origin, callback) => {
+    if (!origin || /https?:\/\/localhost(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 
@@ -53,8 +59,11 @@ const connectDB = async () => {
   }
 };
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB and hydrate current parked vehicles
+const initApp = async () => {
+  await connectDB();
+  await hydrateParkingSystemFromDB();
+};
 
 /**
  * ROUTES
@@ -103,10 +112,17 @@ app.use((error, req, res, next) => {
  * START SERVER
  */
 
-app.listen(PORT, () => {
-  console.log(`🚀 Backend Server is running on http://localhost:${PORT}`);
-  console.log(`📊 Parking System API ready`);
-  console.log(`🔗 CORS enabled for http://localhost:3000`);
+const startServer = () => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Backend Server is running on http://localhost:${PORT}`);
+    console.log(`📊 Parking System API ready`);
+    console.log(`🔗 CORS enabled for http://localhost:3000`);
+  });
+};
+
+initApp().then(startServer).catch((error) => {
+  console.error('Failed to initialize application:', error);
+  process.exit(1);
 });
 
 export default app;

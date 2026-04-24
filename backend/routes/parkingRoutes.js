@@ -21,7 +21,12 @@ import {
 import { verifyToken } from '../controllers/authMiddleware.js';
 
 const router = express.Router();
-
+router.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Parking API is working"
+  });
+});
 /**
  * Public Routes (No Authentication Required)
  */
